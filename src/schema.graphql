@@ -1,22 +1,30 @@
 type Query {
     movies: [Movie!]!
     users: [User!]!
-    reviews: [Reviews!]!
+    reviews: [Review!]!
 }
+
+type Mutation {
+    signup(name: String!, email: String!): User!
+}
+
 type User {
     id: ID!
     name: String!
     email: String!
+    reviews: [Review!]!
 }    
 
 type Movie {
     id: ID!
-    title: String!
+    title: String! 
+    reviews: [Review!]!                                                                                                                                                                                                 
 }
-type Reviews {
+
+type Review {
     id: ID!
-    movie: String!
+    movie: Movie!
     reviewText: String!
     rating: Int!
-    user: String!
+    user: User!
 }
