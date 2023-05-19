@@ -1,0 +1,22 @@
+type Query {
+    movies: [Movie!]!
+    users: [User!]!
+    reviews: [Reviews!]!
+}
+type User {
+    id: ID!
+    name: String!
+    email: String!
+}    
+
+type Movie {
+    id: ID!
+    title: String!
+}
+type Reviews {
+    id: ID!
+    movie: String!
+    reviewText: String!
+    rating: Int!
+    user: String!
+}

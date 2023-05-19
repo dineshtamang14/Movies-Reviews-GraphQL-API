@@ -1,19 +1,12 @@
 const { createSchema, createYoga } = require("graphql-yoga")
 const { users, movies, reviews } = require("./sampleData")
 const { createServer } = require("node:http")
+const { importSchema } = require('graphql-import');
+const resolvers = require("./resolvers")
+const typeDefs = importSchema('./src/schema.graphql');
 
-// schema
-const typeDefs = `
-    type Query {
-        movie: String!
-    }
-`
-
-const resolvers = {
-    Query: {
-        movie: () => "The Lego Movie"
-    }
-}
+// schemas
+// GraphQL Scaler Types: String, Int, Float, Boolean, ID
 
 const yoga = createYoga({ 
     schema: createSchema({
@@ -28,7 +21,7 @@ const yoga = createYoga({
 })
 
 const server = createServer(yoga);
-
-server.listen(4000, () => {
-    console.info('Server is running on http://localhost:4000/graphql')
+const PORT = 5000 | process.env.PORT;
+server.listen(PORT, () => {
+    console.info(`Server is running on http://localhost:${PORT}/graphql`)
 })
