@@ -1,0 +1,19 @@
+version: "3.3"
+services:
+  api:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+      args: 
+        - PORT=4000
+    container_name: graphql-api
+    ports:
+      - 4000:4000
+    volumes:
+      - ./:/usr/src/app:ro
+    networks:
+      - nginxproxymanager_nginx-proxy-manager-network
+
+networks:
+  nginxproxymanager_nginx-proxy-manager-network:
+    external: true

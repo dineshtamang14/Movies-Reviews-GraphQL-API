@@ -12,6 +12,47 @@ const resolvers = {
             return ctx.reviews
         }
     },
+    Mutation: {
+        signup(parent, args, ctx, info){
+            const user = {
+                id: `100${ctx.users.length + 1}`,
+                name: args.name,
+                email: args.email
+            }
+            ctx.users.push(user);
+            return user;
+        },
+
+        createMovie(parent, args, ctx, info){
+            const movie = {
+                id: `200${ctx.movies.length + 1}`,
+                title: args.title
+            }
+            ctx.movies.push(movie);
+            return movie;
+        },
+
+        createReview(parent, args, ctx, info) {
+            const review = {
+                id: `300${ctx.reviews.length + 1}`,
+                movie: args.movieId,
+                reviewText: args.reviewText,
+                rating: args.rating,
+                user: args.userId
+            }
+
+            ctx.reviews.push(review);
+            ctx.pubsub.publish('newReview', { review });
+            return review;
+        }
+    },
+    Subscription: {
+        review: {
+            subscribe(parent, args, ctx, info) {
+                return ctx.pubsub.subscribe('newReview')
+            }
+        }
+    },
 
     Review: {
         movie: (parent, args, ctx, info) => {
