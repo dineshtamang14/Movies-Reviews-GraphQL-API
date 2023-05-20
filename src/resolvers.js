@@ -13,6 +13,25 @@ const resolvers = {
         reviews: async (parent, args, ctx, info) => {
             // return ctx.reviews
             return await ctx.prisma.review.findMany();
+        },
+
+        reviewsByUser: async (parent, args, ctx, info) => {
+            const userExists = await ctx.prisma.user.findUnique({
+                where: {
+                  id: Number(args.userId) 
+                }
+            });
+
+            if(!userExists){
+                throw new Error("User does not Found");
+            }
+
+            const review = await ctx.prisma.user.findUnique({
+                where: { id: args.userId },
+                include: { reviews: true },
+            });
+            
+            return review.reviews;
         }
     },
     Mutation: {
@@ -22,6 +41,17 @@ const resolvers = {
             //     name: args.name,
             //     email: args.email
             // }
+
+            const userExists = await ctx.prisma.user.findUnique({
+                where: {
+                  email: args.email 
+                }
+            });
+
+            if(userExists){
+                throw new Error("User already exists");
+            }
+
             const user = await ctx.prisma.user.create({
                 data: {
                     name: args.name,
@@ -131,10 +161,17 @@ const resolvers = {
     },
 
     User: {
-        reviews: (parent, args, ctx, info) => {
-            return ctx.reviews.filter(review => {
-                return review.user === parent.id
-            })
+        reviews: async (parent, args, ctx, info) => {
+            // return ctx.reviews.filter(review => {
+            //     return review.user === parent.id
+            // })
+
+            const review = await ctx.prisma.user.findUnique({
+                where: { id: parent.id },
+                include: { reviews: true },
+            });
+            
+            return review.reviews;
         }
     },
 
@@ -146,13 +183,13 @@ const resolvers = {
 
             const review = await ctx.prisma.movie.findUnique({
                 where: { id: parent.id },
-                include: { review: true },
+                include: { reviews: true },
             });
             
-            return review.user;
+            return review.reviews;
         }
     }
-}
+} 
 
 
 module.exports = resolvers

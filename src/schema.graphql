@@ -2,6 +2,7 @@ type Query {
     movies: [Movie!]!
     users: [User!]!
     reviews: [Review!]!
+    reviewsByUser(userId: Int!): [Review!]!
 }
 
 type Mutation {
