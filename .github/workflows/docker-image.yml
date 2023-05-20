@@ -21,4 +21,4 @@ jobs:
       run: docker build . --file Dockerfile --tag dineshtamang14/movies-reviews-graphql-api:$(date +%s)
       
     - name: Docker Push
-      run: docker push dineshtamang14/movies-reviews-graphql-api
+      run: docker push dineshtamang14/movies-reviews-graphql-api:$(date +%s)
