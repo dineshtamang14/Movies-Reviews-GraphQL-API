@@ -1,47 +1,95 @@
 const resolvers = {
     Query: {
-        movies: (parent, args, ctx, info) => {
-            return ctx.movies
+        movies: async (parent, args, ctx, info) => {
+            // return ctx.movies
+            return await ctx.prisma.movie.findMany();
         },
 
-        users: (parent, args, ctx, info) => {
-            return ctx.users;
+        users: async (parent, args, ctx, info) => {
+            // return ctx.users;
+            return await ctx.prisma.user.findMany();
         },
 
-        reviews: (parent, args, ctx, info) => {
-            return ctx.reviews
+        reviews: async (parent, args, ctx, info) => {
+            // return ctx.reviews
+            return await ctx.prisma.review.findMany();
         }
     },
     Mutation: {
-        signup(parent, args, ctx, info){
-            const user = {
-                id: `100${ctx.users.length + 1}`,
-                name: args.name,
-                email: args.email
-            }
-            ctx.users.push(user);
+        async signup(parent, args, ctx, info){
+            // const user = {
+            //     id: `100${ctx.users.length + 1}`,
+            //     name: args.name,
+            //     email: args.email
+            // }
+            const user = await ctx.prisma.user.create({
+                data: {
+                    name: args.name,
+                    email: args.email
+                }
+            });
             return user;
         },
 
-        createMovie(parent, args, ctx, info){
-            const movie = {
-                id: `200${ctx.movies.length + 1}`,
-                title: args.title
-            }
-            ctx.movies.push(movie);
+        async createMovie(parent, args, ctx, info){
+            // const movie = {
+            //     id: `200${ctx.movies.length + 1}`,
+            //     title: args.title
+            // }
+
+            const movie = await ctx.prisma.movie.create({
+                data: {
+                    title: args.title
+                }
+            });
             return movie;
         },
 
-        createReview(parent, args, ctx, info) {
-            const review = {
-                id: `300${ctx.reviews.length + 1}`,
-                movie: args.movieId,
-                reviewText: args.reviewText,
-                rating: args.rating,
-                user: args.userId
+        async createReview(parent, args, ctx, info) {
+            // const review = {
+            //     id: `300${ctx.reviews.length + 1}`,
+            //     movie: args.movieId,
+            //     reviewText: args.reviewText,
+            //     rating: args.rating,
+            //     user: args.userId
+            // }
+
+            const user = await ctx.prisma.user.findUnique({
+                where: {
+                  id: Number(args.userId) 
+                }
+            });
+            const movie = await ctx.prisma.movie.findUnique({
+                where: {
+                  id: Number(args.movieId) 
+                }
+            });
+            
+            if(!user){
+                throw new Error("user does not exist");
             }
 
-            ctx.reviews.push(review);
+            if(!movie){
+                throw new Error("movie does not exist");
+            }
+
+            const review = await ctx.prisma.review.create({
+                data: {
+                    movie: {
+                        connect: {
+                            id: args.movieId
+                        }
+                    },
+                    reviewText: args.reviewText,
+                    rating: args.rating,
+                    user: {
+                        connect: {
+                            id: args.userId
+                        }
+                    }
+                }
+            });
+
             ctx.pubsub.publish('newReview', { review });
             return review;
         }
@@ -55,16 +103,30 @@ const resolvers = {
     },
 
     Review: {
-        movie: (parent, args, ctx, info) => {
-            return ctx.movies.find(movie => {
-                return movie.id === parent.movie
-            })
+        movie: async (parent, args, ctx, info) => {
+            // return ctx.movies.find(movie => {
+            //     return movie.id === parent.movie
+            // })
+
+            const review = await ctx.prisma.review.findUnique({
+                where: { id: parent.id },
+                include: { movie: true },
+            });
+            
+            return review.movie;
         },
 
-        user: (parent, args, ctx, info) => {
-            return ctx.users.find(user => {
-                return user.id === parent.user
-            })
+        user: async (parent, args, ctx, info) => {
+            // return ctx.users.find(user => {
+            //     return user.id === parent.user
+            // })
+
+            const review = await ctx.prisma.review.findUnique({
+                where: { id: parent.id },
+                include: { user: true },
+            });
+            
+            return review.user;
         }
     },
 
@@ -77,10 +139,17 @@ const resolvers = {
     },
 
     Movie: {
-        reviews: (parent, args, ctx, info) => {
-            return ctx.reviews.filter(review => {
-                return review.id === parent.reviews
-            })
+        reviews: async (parent, args, ctx, info) => {
+            // return ctx.reviews.filter(review => {
+            //     return review.id === parent.reviews
+            // })
+
+            const review = await ctx.prisma.movie.findUnique({
+                where: { id: parent.id },
+                include: { review: true },
+            });
+            
+            return review.user;
         }
     }
 }
