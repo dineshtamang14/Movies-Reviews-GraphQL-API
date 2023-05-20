@@ -1,4 +1,5 @@
 const { createSchema, createYoga, createPubSub } = require("graphql-yoga")
+const { PrismaClient } = require("@prisma/client")
 const { users, movies, reviews } = require("./sampleData")
 const { createServer } = require("node:http")
 const { importSchema } = require('graphql-import');
@@ -7,6 +8,7 @@ const typeDefs = importSchema('./src/schema.graphql');
 
 // schemas
 // GraphQL Scaler Types: String, Int, Float, Boolean, ID
+const prisma = new PrismaClient()
 const pubsub = createPubSub()
 
 const yoga = createYoga({ 
@@ -18,7 +20,8 @@ const yoga = createYoga({
         users,
         movies,
         reviews,
-        pubsub
+        pubsub,
+        prisma
     } 
 })
 
