@@ -18,7 +18,7 @@ jobs:
       run: |
         docker login -u $DOCKER_USER -p $DOCKER_PASSWORD 
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag dineshtamang14/movies-reviews-graphql-api:$(date +%s)
+      run: docker build . --file Dockerfile --tag dineshtamang14/movies-reviews-graphql-api
       
     - name: Docker Push
-      run: docker push dineshtamang14/movies-reviews-graphql-api:$(date +%s)
+      run: docker push dineshtamang14/movies-reviews-graphql-api
